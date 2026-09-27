@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
 
@@ -47,8 +47,34 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
+[sub_resource type="StyleBoxFlat" id="MoveButtonNormal"]
+bg_color = Color(0.025, 0.08, 0.15, 0.48)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 0.62)
+corner_radius_top_left = 90
+corner_radius_top_right = 90
+corner_radius_bottom_right = 90
+corner_radius_bottom_left = 90
+
+[sub_resource type="StyleBoxFlat" id="MoveButtonPressed"]
+bg_color = Color(0.1, 0.55, 0.92, 0.82)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 90
+corner_radius_top_right = 90
+corner_radius_bottom_right = 90
+corner_radius_bottom_left = 90
+
+
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1")
+
 
 [node name="TopMargin" type="MarginContainer" parent="."]
 offset_right = 1080.0
@@ -57,28 +83,34 @@ theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 
+
 [node name="HBox" type="HBoxContainer" parent="TopMargin"]
 layout_mode = 2
 theme_override_constants/separation = 18
 
+
 [node name="AltitudePanel" type="PanelContainer" parent="TopMargin/HBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("TopPanel")
+
 
 [node name="AltitudeLabel" type="Label" parent="TopMargin/HBox/AltitudePanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 31
-text = "ALTURA  0 m"
+text = "ALTURA  0 / 300 m"
+
 
 [node name="AirPanel" type="PanelContainer" parent="TopMargin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("TopPanel")
 
+
 [node name="VBox" type="VBoxContainer" parent="TopMargin/HBox/AirPanel"]
 layout_mode = 2
+
 
 [node name="AirLabel" type="Label" parent="TopMargin/HBox/AirPanel/VBox"]
 unique_name_in_owner = true
@@ -86,6 +118,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 26
 text = "AIRE  100%"
+
 
 [node name="AirBar" type="ProgressBar" parent="TopMargin/HBox/AirPanel/VBox"]
 unique_name_in_owner = true
@@ -95,9 +128,11 @@ value = 100.0
 show_percentage = false
 theme_override_styles/fill = SubResource("AirFill")
 
+
 [node name="CoinsPanel" type="PanelContainer" parent="TopMargin/HBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("TopPanel")
+
 
 [node name="CoinsLabel" type="Label" parent="TopMargin/HBox/CoinsPanel"]
 unique_name_in_owner = true
@@ -105,6 +140,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.83, 0.2, 1)
 theme_override_font_sizes/font_size = 30
 text = "MONEDAS  0"
+
 
 [node name="LowAirLabel" type="Label" parent="."]
 unique_name_in_owner = true
@@ -117,6 +153,7 @@ theme_override_font_sizes/font_size = 34
 text = "AIRE BAJO"
 horizontal_alignment = 1
 
+
 [node name="FallWarning" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 offset_left = 160.0
@@ -124,6 +161,7 @@ offset_top = 250.0
 offset_right = 920.0
 offset_bottom = 330.0
 theme_override_styles/panel = SubResource("DangerPanel")
+
 
 [node name="FallLabel" type="Label" parent="FallWarning"]
 unique_name_in_owner = true
@@ -133,6 +171,58 @@ theme_override_font_sizes/font_size = 29
 text = "SIN AIRE - ENCUENTRA UN GLOBO!"
 horizontal_alignment = 1
 
+
+[node name="MoveControls" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+
+[node name="LeftMoveButton" type="Button" parent="MoveControls"]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 42.0
+offset_top = -235.0
+offset_right = 222.0
+offset_bottom = -55.0
+focus_mode = 0
+keep_pressed_outside = true
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 72
+theme_override_styles/normal = SubResource("MoveButtonNormal")
+theme_override_styles/hover = SubResource("MoveButtonNormal")
+theme_override_styles/pressed = SubResource("MoveButtonPressed")
+text = "◀"
+
+
+[node name="RightMoveButton" type="Button" parent="MoveControls"]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -222.0
+offset_top = -235.0
+offset_right = -42.0
+offset_bottom = -55.0
+focus_mode = 0
+keep_pressed_outside = true
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_font_sizes/font_size = 72
+theme_override_styles/normal = SubResource("MoveButtonNormal")
+theme_override_styles/hover = SubResource("MoveButtonNormal")
+theme_override_styles/pressed = SubResource("MoveButtonPressed")
+text = "▶"
+
+
 [node name="DeathPanel" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 3
@@ -141,6 +231,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
 
 [node name="Shade" type="ColorRect" parent="DeathPanel"]
 layout_mode = 1
@@ -152,6 +243,7 @@ grow_vertical = 2
 color = Color(0.01, 0.03, 0.06, 0.62)
 mouse_filter = 2
 
+
 [node name="Center" type="CenterContainer" parent="DeathPanel"]
 layout_mode = 1
 anchors_preset = 15
@@ -160,15 +252,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+
 [node name="Panel" type="PanelContainer" parent="DeathPanel/Center"]
 custom_minimum_size = Vector2(700, 620)
 layout_mode = 2
 theme_override_styles/panel = SubResource("ModalPanel")
 
+
 [node name="VBox" type="VBoxContainer" parent="DeathPanel/Center/Panel"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 24
+
 
 [node name="DeathTitle" type="Label" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
@@ -178,6 +273,7 @@ theme_override_font_sizes/font_size = 46
 text = "MILO NECESITA UN RESCATE"
 horizontal_alignment = 1
 
+
 [node name="DeathStats" type="Label" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -185,6 +281,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 31
 text = "Altura maxima: 0 m\nMonedas: 0"
 horizontal_alignment = 1
+
 
 [node name="StatusLabel" type="Label" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
@@ -194,12 +291,14 @@ theme_override_font_sizes/font_size = 23
 text = "Un solo revive por partida"
 horizontal_alignment = 1
 
+
 [node name="ReviveButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 86)
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "VER VIDEO Y REVIVIR"
+
 
 [node name="EndRunButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
@@ -208,12 +307,14 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "TERMINAR"
 
+
 [node name="RetryButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 86)
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "REINTENTAR"
+
 
 [connection signal="pressed" from="DeathPanel/Center/Panel/VBox/ReviveButton" to="." method="_on_revive_pressed"]
 [connection signal="pressed" from="DeathPanel/Center/Panel/VBox/EndRunButton" to="." method="_on_end_run_pressed"]
