@@ -1,0 +1,220 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="TopPanel"]
+bg_color = Color(0.035, 0.12, 0.22, 0.9)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="DangerPanel"]
+bg_color = Color(0.45, 0.04, 0.08, 0.94)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="ModalPanel"]
+bg_color = Color(0.025, 0.08, 0.15, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.22, 0.66, 0.95, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+content_margin_left = 34.0
+content_margin_top = 30.0
+content_margin_right = 34.0
+content_margin_bottom = 30.0
+
+[sub_resource type="StyleBoxFlat" id="AirFill"]
+bg_color = Color(0.1, 0.85, 0.72, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="TopMargin" type="MarginContainer" parent="."]
+offset_right = 1080.0
+offset_bottom = 200.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+
+[node name="HBox" type="HBoxContainer" parent="TopMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="AltitudePanel" type="PanelContainer" parent="TopMargin/HBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("TopPanel")
+
+[node name="AltitudeLabel" type="Label" parent="TopMargin/HBox/AltitudePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 31
+text = "ALTURA  0 m"
+
+[node name="AirPanel" type="PanelContainer" parent="TopMargin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("TopPanel")
+
+[node name="VBox" type="VBoxContainer" parent="TopMargin/HBox/AirPanel"]
+layout_mode = 2
+
+[node name="AirLabel" type="Label" parent="TopMargin/HBox/AirPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "AIRE  100%"
+
+[node name="AirBar" type="ProgressBar" parent="TopMargin/HBox/AirPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+theme_override_styles/fill = SubResource("AirFill")
+
+[node name="CoinsPanel" type="PanelContainer" parent="TopMargin/HBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("TopPanel")
+
+[node name="CoinsLabel" type="Label" parent="TopMargin/HBox/CoinsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.83, 0.2, 1)
+theme_override_font_sizes/font_size = 30
+text = "MONEDAS  0"
+
+[node name="LowAirLabel" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = 290.0
+offset_top = 195.0
+offset_right = 790.0
+offset_bottom = 255.0
+theme_override_colors/font_color = Color(1, 0.2, 0.24, 1)
+theme_override_font_sizes/font_size = 34
+text = "AIRE BAJO"
+horizontal_alignment = 1
+
+[node name="FallWarning" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 160.0
+offset_top = 250.0
+offset_right = 920.0
+offset_bottom = 330.0
+theme_override_styles/panel = SubResource("DangerPanel")
+
+[node name="FallLabel" type="Label" parent="FallWarning"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 29
+text = "SIN AIRE - ENCUENTRA UN GLOBO!"
+horizontal_alignment = 1
+
+[node name="DeathPanel" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Shade" type="ColorRect" parent="DeathPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.03, 0.06, 0.62)
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="DeathPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="DeathPanel/Center"]
+custom_minimum_size = Vector2(700, 620)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ModalPanel")
+
+[node name="VBox" type="VBoxContainer" parent="DeathPanel/Center/Panel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="DeathTitle" type="Label" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.2, 1)
+theme_override_font_sizes/font_size = 46
+text = "MILO NECESITA UN RESCATE"
+horizontal_alignment = 1
+
+[node name="DeathStats" type="Label" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 31
+text = "Altura maxima: 0 m\nMonedas: 0"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.84, 0.95, 1)
+theme_override_font_sizes/font_size = 23
+text = "Un solo revive por partida"
+horizontal_alignment = 1
+
+[node name="ReviveButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "VER VIDEO Y REVIVIR"
+
+[node name="EndRunButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "TERMINAR"
+
+[node name="RetryButton" type="Button" parent="DeathPanel/Center/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 86)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "REINTENTAR"
+
+[connection signal="pressed" from="DeathPanel/Center/Panel/VBox/ReviveButton" to="." method="_on_revive_pressed"]
+[connection signal="pressed" from="DeathPanel/Center/Panel/VBox/EndRunButton" to="." method="_on_end_run_pressed"]
+[connection signal="pressed" from="DeathPanel/Center/Panel/VBox/RetryButton" to="." method="_on_retry_pressed"]

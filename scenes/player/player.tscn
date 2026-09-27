@@ -1,0 +1,75 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/components/air_component.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/player/player_state_machine.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/player/states/inflated_state.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/player/states/falling_state.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/player/states/dead_state.gd" id="6"]
+[ext_resource type="Resource" path="res://data/default_balance.tres" id="7"]
+
+[sub_resource type="CapsuleShape2D" id="Capsule"]
+radius = 30.0
+height = 72.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("1")
+balance = ExtResource("7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Capsule")
+
+[node name="BodyVisual" type="Node2D" parent="."]
+
+[node name="Body" type="Polygon2D" parent="BodyVisual"]
+polygon = PackedVector2Array(-28, -26, 28, -26, 34, -5, 30, 24, 14, 36, -14, 36, -30, 24, -34, -5)
+color = Color(0.96, 0.53, 0.2, 1)
+
+[node name="Belly" type="Polygon2D" parent="BodyVisual"]
+polygon = PackedVector2Array(-13, -4, 13, -4, 18, 14, 8, 29, -8, 29, -18, 14)
+color = Color(1, 0.9, 0.72, 1)
+
+[node name="LeftEye" type="Polygon2D" parent="BodyVisual"]
+position = Vector2(-10, -10)
+polygon = PackedVector2Array(0, -5, 4, -3, 5, 2, 2, 5, -2, 5, -5, 2, -4, -3)
+color = Color(0.05, 0.12, 0.15, 1)
+
+[node name="RightEye" type="Polygon2D" parent="BodyVisual"]
+position = Vector2(10, -10)
+polygon = PackedVector2Array(0, -5, 4, -3, 5, 2, 2, 5, -2, 5, -5, 2, -4, -3)
+color = Color(0.05, 0.12, 0.15, 1)
+
+[node name="BalloonVisual" type="Node2D" parent="."]
+position = Vector2(0, -102)
+
+[node name="Balloon" type="Polygon2D" parent="BalloonVisual"]
+polygon = PackedVector2Array(0, -45, 28, -35, 43, -11, 39, 18, 21, 40, 0, 48, -21, 40, -39, 18, -43, -11, -28, -35)
+color = Color(0.96, 0.16, 0.25, 1)
+
+[node name="Highlight" type="Polygon2D" parent="BalloonVisual"]
+position = Vector2(-15, -24)
+polygon = PackedVector2Array(0, -9, 8, -7, 12, -1, 8, 6, 1, 8, -5, 4, -7, -2)
+color = Color(1, 0.6, 0.66, 0.92)
+
+[node name="String" type="Line2D" parent="BalloonVisual"]
+points = PackedVector2Array(0, 48, 0, 78)
+width = 3.0
+default_color = Color(0.23, 0.23, 0.25, 1)
+
+[node name="AirComponent" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("3")
+initial_state = NodePath("Inflated")
+
+[node name="Inflated" type="Node" parent="StateMachine"]
+script = ExtResource("4")
+
+[node name="Falling" type="Node" parent="StateMachine"]
+script = ExtResource("5")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("6")

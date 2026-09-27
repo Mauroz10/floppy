@@ -1,0 +1,2 @@
+Balloon Rush Vertical Slice v0.2
+Core loop: ascent + air + fall rescue + obstacles + coins + one rewarded revive

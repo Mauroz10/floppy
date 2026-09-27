@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/air_pickup.gd" id="1"]
+[sub_resource type="CircleShape2D" id="Circle"]
+radius = 30.0
+
+[node name="AirBubble" type="Area2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1")
+restore_amount = 1.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle")
+
+[node name="Outer" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -30, 21, -21, 30, 0, 21, 21, 0, 30, -21, 21, -30, 0, -21, -21)
+color = Color(0.15, 0.72, 1, 0.72)
+
+[node name="Inner" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-8, -18, 2, -20, 8, -14, 2, -7, -7, -8, -12, -13)
+color = Color(0.88, 0.98, 1, 0.9)

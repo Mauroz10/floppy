@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/air_pickup.gd" id="1"]
+[sub_resource type="CircleShape2D" id="Circle"]
+radius = 42.0
+
+[node name="FullBalloon" type="Area2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1")
+full_refill = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle")
+position = Vector2(0, -8)
+
+[node name="Balloon" type="Polygon2D" parent="."]
+position = Vector2(0, -12)
+polygon = PackedVector2Array(0, -43, 27, -34, 42, -10, 37, 18, 20, 38, 0, 46, -20, 38, -37, 18, -42, -10, -27, -34)
+color = Color(0.96, 0.17, 0.28, 1)
+
+[node name="Highlight" type="Polygon2D" parent="."]
+position = Vector2(-14, -28)
+polygon = PackedVector2Array(0, -8, 8, -6, 12, 0, 7, 6, 0, 8, -5, 4, -7, -2)
+color = Color(1, 0.62, 0.68, 0.9)
+
+[node name="String" type="Line2D" parent="."]
+points = PackedVector2Array(0, 34, 0, 72)
+width = 3.0
+default_color = Color(0.23, 0.24, 0.27, 1)
