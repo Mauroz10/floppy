@@ -10,6 +10,10 @@ class_name BalloonHUD
 @onready var fall_warning: PanelContainer = %FallWarning
 @onready var fall_label: Label = %FallLabel
 
+@onready var move_controls: Control = %MoveControls
+@onready var left_move_button: Button = %LeftMoveButton
+@onready var right_move_button: Button = %RightMoveButton
+
 @onready var death_panel: Control = %DeathPanel
 @onready var death_title: Label = %DeathTitle
 @onready var death_stats: Label = %DeathStats
@@ -30,6 +34,7 @@ func _ready() -> void:
 	death_panel.visible = false
 	fall_warning.visible = false
 	low_air_label.visible = false
+	move_controls.visible = true
 
 	GameManager.altitude_changed.connect(
 		_on_altitude_changed
@@ -55,8 +60,28 @@ func _ready() -> void:
 		_on_run_finished
 	)
 
+	left_move_button.button_down.connect(
+		_on_left_move_button_down
+	)
+
+	left_move_button.button_up.connect(
+		_on_left_move_button_up
+	)
+
+	right_move_button.button_down.connect(
+		_on_right_move_button_down
+	)
+
+	right_move_button.button_up.connect(
+		_on_right_move_button_up
+	)
+
 	_on_altitude_changed(0.0)
 	_on_coins_changed(0)
+
+
+func _exit_tree() -> void:
+	_release_movement_inputs()
 
 
 func bind_player(target: PlayerController) -> void:
@@ -110,10 +135,52 @@ func bind_player(target: PlayerController) -> void:
 	)
 
 
+# ============================================================
+# CONTROLES MÓVILES
+# ============================================================
+
+func _on_left_move_button_down() -> void:
+	Input.action_press(
+		"move_left"
+	)
+
+
+func _on_left_move_button_up() -> void:
+	Input.action_release(
+		"move_left"
+	)
+
+
+func _on_right_move_button_down() -> void:
+	Input.action_press(
+		"move_right"
+	)
+
+
+func _on_right_move_button_up() -> void:
+	Input.action_release(
+		"move_right"
+	)
+
+
+func _release_movement_inputs() -> void:
+	Input.action_release(
+		"move_left"
+	)
+
+	Input.action_release(
+		"move_right"
+	)
+
+
+# ============================================================
+# ALTURA
+# ============================================================
+
 func _on_altitude_changed(
 	altitude: float
 ) -> void:
-	var meters := int(
+	var meters: int = int(
 		floor(altitude)
 	)
 
@@ -126,6 +193,10 @@ func _on_altitude_changed(
 	)
 
 
+# ============================================================
+# MONEDAS
+# ============================================================
+
 func _on_coins_changed(
 	coins: int
 ) -> void:
@@ -135,11 +206,15 @@ func _on_coins_changed(
 	)
 
 
+# ============================================================
+# AIRE
+# ============================================================
+
 func _on_air_changed(
 	current: float,
 	maximum: float
 ) -> void:
-	var ratio := 0.0
+	var ratio: float = 0.0
 
 	if maximum > 0.0:
 		ratio = current / maximum
@@ -176,6 +251,10 @@ func _on_low_air_ended() -> void:
 	low_air_label.visible = false
 
 
+# ============================================================
+# CAÍDA
+# ============================================================
+
 func _on_fall_started() -> void:
 	fall_warning.visible = true
 	low_air_label.visible = false
@@ -195,9 +274,17 @@ func _on_fall_time_changed(
 	)
 
 
+# ============================================================
+# MUERTE / REVIVE
+# ============================================================
+
 func _on_death_pending(
 	_can_revive: bool
 ) -> void:
+	_release_movement_inputs()
+
+	move_controls.visible = false
+
 	fall_warning.visible = false
 	low_air_label.visible = false
 
@@ -225,6 +312,7 @@ func _on_death_pending(
 
 	revive_button.visible = true
 	revive_button.disabled = false
+
 	revive_button.text = (
 		"VER VIDEO Y REVIVIR"
 	)
@@ -234,9 +322,13 @@ func _on_death_pending(
 
 
 func _on_revive_granted() -> void:
+	_release_movement_inputs()
+
 	death_panel.visible = false
 	fall_warning.visible = false
 	low_air_label.visible = false
+
+	move_controls.visible = true
 
 	status_label.text = ""
 
@@ -258,6 +350,10 @@ func _on_run_finished(
 	coins: int,
 	best_height: float
 ) -> void:
+	_release_movement_inputs()
+
+	move_controls.visible = false
+
 	fall_warning.visible = false
 	low_air_label.visible = false
 
