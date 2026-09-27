@@ -30,7 +30,7 @@ func _on_altitude_changed(value: float) -> void:
 
 
 func _draw() -> void:
-	var size := get_viewport_rect().size
+	var size: Vector2 = get_viewport_rect().size
 
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
@@ -42,33 +42,33 @@ func _draw() -> void:
 
 
 func _draw_sky(size: Vector2) -> void:
-	var zone_progress := clampf(
+	var zone_progress: float = clampf(
 		_altitude_m / 300.0,
 		0.0,
 		1.0
 	)
 
-	var sky_top := Color("178ee0").lerp(
+	var sky_top: Color = Color("178ee0").lerp(
 		Color("55b9ee"),
 		zone_progress
 	)
 
-	var sky_bottom := Color("c8efff").lerp(
+	var sky_bottom: Color = Color("c8efff").lerp(
 		Color("edfaff"),
 		zone_progress
 	)
 
-	var bands := 14
+	var bands: int = 14
 
 	for i in range(bands):
-		var t := float(i) / float(bands - 1)
+		var t: float = float(i) / float(bands - 1)
 
-		var color := sky_top.lerp(
+		var color: Color = sky_top.lerp(
 			sky_bottom,
 			t
 		)
 
-		var y := (
+		var y: float = (
 			size.y
 			* float(i)
 			/ float(bands)
@@ -86,9 +86,9 @@ func _draw_sky(size: Vector2) -> void:
 
 
 func _draw_far_clouds(size: Vector2) -> void:
-	var movement := _altitude_m * 3.0
+	var movement: float = _altitude_m * 3.0
 
-	var positions := [
+	var positions: Array[Vector2] = [
 		Vector2(
 			size.x * 0.18,
 			_wrap_y(
@@ -112,19 +112,19 @@ func _draw_far_clouds(size: Vector2) -> void:
 				size.y,
 				180.0
 			)
-		),
+		)
 	]
 
 	for i in range(positions.size()):
-		var drift := sin(
+		var drift: float = sin(
 			_time * 0.10 + float(i)
 		) * 18.0
 
-		var position := positions[i]
-		position.x += drift
+		var cloud_position: Vector2 = positions[i]
+		cloud_position.x += drift
 
 		_draw_cloud(
-			position,
+			cloud_position,
 			0.65,
 			Color(
 				1.0,
@@ -136,9 +136,9 @@ func _draw_far_clouds(size: Vector2) -> void:
 
 
 func _draw_near_clouds(size: Vector2) -> void:
-	var movement := _altitude_m * 7.0
+	var movement: float = _altitude_m * 7.0
 
-	var positions := [
+	var positions: Array[Vector2] = [
 		Vector2(
 			size.x * 0.12,
 			_wrap_y(
@@ -162,20 +162,20 @@ func _draw_near_clouds(size: Vector2) -> void:
 				size.y,
 				220.0
 			)
-		),
+		)
 	]
 
 	for i in range(positions.size()):
-		var drift := sin(
+		var drift: float = sin(
 			_time * 0.16
 			+ float(i) * 1.7
 		) * 26.0
 
-		var position := positions[i]
-		position.x += drift
+		var cloud_position: Vector2 = positions[i]
+		cloud_position.x += drift
 
 		_draw_cloud(
-			position,
+			cloud_position,
 			1.0,
 			Color(
 				1.0,
@@ -187,15 +187,15 @@ func _draw_near_clouds(size: Vector2) -> void:
 
 
 func _draw_distant_islands(size: Vector2) -> void:
-	var movement := _altitude_m * 5.0
+	var movement: float = _altitude_m * 5.0
 
-	var island_y := _wrap_y(
+	var island_y: float = _wrap_y(
 		size.y * 0.72 + movement,
 		size.y,
 		280.0
 	)
 
-	var center := Vector2(
+	var center: Vector2 = Vector2(
 		size.x * 0.72,
 		island_y
 	)
@@ -245,49 +245,32 @@ func _draw_island(
 	center: Vector2,
 	scale_value: float
 ) -> void:
-	var grass := Color(
+	var grass: Color = Color(
 		0.25,
 		0.65,
 		0.32,
 		0.36
 	)
 
-	var rock := Color(
+	var rock: Color = Color(
 		0.28,
 		0.36,
 		0.42,
 		0.30
 	)
 
-	draw_ellipse(
+	_draw_ellipse(
 		center,
-		Vector2(
-			110,
-			32
-		) * scale_value,
+		Vector2(110, 32) * scale_value,
 		grass
 	)
 
-	var points := PackedVector2Array([
-		center
-		+ Vector2(-90, 10)
-		* scale_value,
-
-		center
-		+ Vector2(90, 10)
-		* scale_value,
-
-		center
-		+ Vector2(35, 110)
-		* scale_value,
-
-		center
-		+ Vector2(-20, 145)
-		* scale_value,
-
-		center
-		+ Vector2(-55, 90)
-		* scale_value,
+	var points: PackedVector2Array = PackedVector2Array([
+		center + Vector2(-90, 10) * scale_value,
+		center + Vector2(90, 10) * scale_value,
+		center + Vector2(35, 110) * scale_value,
+		center + Vector2(-20, 145) * scale_value,
+		center + Vector2(-55, 90) * scale_value
 	])
 
 	draw_colored_polygon(
@@ -296,16 +279,16 @@ func _draw_island(
 	)
 
 
-func draw_ellipse(
+func _draw_ellipse(
 	center: Vector2,
 	radius: Vector2,
 	color: Color
 ) -> void:
-	var points := PackedVector2Array()
-	var segments := 32
+	var points: PackedVector2Array = PackedVector2Array()
+	var segments: int = 32
 
 	for i in range(segments):
-		var angle := (
+		var angle: float = (
 			TAU
 			* float(i)
 			/ float(segments)
