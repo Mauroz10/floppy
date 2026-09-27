@@ -1,0 +1,89 @@
+name: Balloon Rush Android Export
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  export-android:
+    name: Generar APK Android
+    runs-on: ubuntu-latest
+
+    container:
+      image: barichello/godot-ci:4.2.1
+
+    steps:
+      - name: Obtener proyecto
+        uses: actions/checkout@v4
+
+      - name: Comprobar archivos obligatorios
+        run: |
+          test -s project.godot
+          test -s scenes/main/main.tscn
+          test -s scripts/main.gd
+          test -s export_presets.cfg
+
+      - name: Preparar Godot y firma de prueba
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates"
+          mkdir -p "$HOME/.config/godot"
+          mkdir -p build
+
+          cp -a /root/.local/share/godot/export_templates/. "$HOME/.local/share/godot/export_templates/"
+          cp -a /root/.config/godot/. "$HOME/.config/godot/"
+
+          test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
+
+          keytool \
+            -keyalg RSA \
+            -genkeypair \
+            -alias androiddebugkey \
+            -keypass android \
+            -keystore build/debug.keystore \
+            -storepass android \
+            -dname "CN=Balloon Rush,O=Mauroz10,C=CO" \
+            -validity 9999 \
+            -deststoretype pkcs12
+
+      - name: Importar recursos y comprobar scripts
+        run: |
+          godot --headless --path . --editor --quit > build/import.log 2>&1
+
+          cat build/import.log
+
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' build/import.log; then
+            echo "El proyecto contiene errores de script."
+            exit 1
+          fi
+
+      - name: Probar inicio del juego
+        run: |
+          godot --headless --path . --quit-after 30 > build/game.log 2>&1
+
+          cat build/game.log
+
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property' build/game.log; then
+            echo "Balloon Rush no inicia correctamente."
+            exit 1
+          fi
+
+      - name: Generar APK
+        run: |
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" \
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey \
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android \
+          godot --headless \
+            --path . \
+            --export-debug "Android" \
+            build/BALLOON_RUSH.apk
+
+          test -s build/BALLOON_RUSH.apk
+          unzip -t build/BALLOON_RUSH.apk | tail -1
+
+      - name: Entregar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BALLOON_RUSH-APK
+          path: build/BALLOON_RUSH.apk
+          if-no-files-found: error
