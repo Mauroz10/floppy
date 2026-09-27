@@ -20,26 +20,18 @@ const BREATHER_INTERVAL: int = 9
 # ============================================================
 
 @export var balance: GameBalance
-
 @export var player: PlayerController
-
 @export var camera: Camera2D
 
 @export var coin_scene: PackedScene
-
 @export var bubble_scene: PackedScene
-
 @export var full_balloon_scene: PackedScene
 
 @export var hazard_block_scene: PackedScene
-
 @export var spike_scene: PackedScene
-
+@export var moving_block_scene: PackedScene
 @export var drone_scene: PackedScene
 
-
-# Semilla fija para que el Mundo 1
-# sea reproducible mientras lo diseñamos.
 @export var world_seed: int = 73129
 
 
@@ -364,7 +356,7 @@ func _populate_row(
 
 
 # ============================================================
-# DIFICULTAD POR ALTURA
+# DIFICULTAD SEGÚN LA ALTURA
 # ============================================================
 
 func _get_hazard_count(
@@ -373,20 +365,15 @@ func _get_hazard_count(
 	rng: RandomNumberGenerator
 ) -> int:
 
-	# --------------------------------------------------------
-	# 0 - 20 m
-	# Tutorial puro.
-	# --------------------------------------------------------
+	# 0 - 20 m:
+	# tutorial prácticamente libre.
 
 	if altitude_m < 20.0:
 		return 0
 
 
-	# --------------------------------------------------------
-	# 20 - 60 m
-	# Pocas amenazas.
-	# Aproximadamente 25% de las filas.
-	# --------------------------------------------------------
+	# 20 - 60 m:
+	# pocas amenazas.
 
 	if altitude_m < INTRO_END_METERS:
 		if rng.randf() < 0.25:
@@ -395,10 +382,8 @@ func _get_hazard_count(
 		return 0
 
 
-	# --------------------------------------------------------
-	# 60 - 120 m
-	# Empieza realmente el juego.
-	# --------------------------------------------------------
+	# 60 - 120 m:
+	# empieza realmente el juego.
 
 	if altitude_m < EARLY_END_METERS:
 		if rng.randf() < 0.72:
@@ -407,11 +392,9 @@ func _get_hazard_count(
 		return 0
 
 
-	# --------------------------------------------------------
-	# 120 - 180 m
-	# Uno casi siempre.
-	# A veces dos.
-	# --------------------------------------------------------
+	# 120 - 180 m:
+	# normalmente uno.
+	# algunas filas tienen dos.
 
 	if altitude_m < MID_END_METERS:
 		if rng.randf() < 0.38:
@@ -423,11 +406,9 @@ func _get_hazard_count(
 		return 1
 
 
-	# --------------------------------------------------------
-	# 180 - 240 m
-	# Más intensidad.
-	# Pero cada cierto tiempo damos un respiro.
-	# --------------------------------------------------------
+	# 180 - 240 m:
+	# más intensidad,
+	# con pequeños descansos.
 
 	if altitude_m < HARD_END_METERS:
 		if (
@@ -447,11 +428,8 @@ func _get_hazard_count(
 		return 1
 
 
-	# --------------------------------------------------------
-	# 240 - 300 m
-	# Tramo final.
-	# Dos obstáculos con mucha frecuencia.
-	# --------------------------------------------------------
+	# 240 - 300 m:
+	# tramo más intenso del Mundo 1.
 
 	if altitude_m <= WORLD_1_END_METERS:
 		if (
@@ -469,9 +447,9 @@ func _get_hazard_count(
 		return 1
 
 
-	# Por ahora mantenemos la dificultad
-	# después de 300 m hasta implementar
-	# la transición real al Mundo 2.
+	# Temporalmente mantenemos esta dificultad
+	# hasta implementar el final real del Mundo 1.
+
 	return mini(
 		2,
 		balance.max_hazards_per_row
@@ -493,9 +471,10 @@ func _choose_hazard_lanes(
 	if hazard_count <= 0:
 		return result
 
-	var left_lanes: Array[int] = []
 
+	var left_lanes: Array[int] = []
 	var right_lanes: Array[int] = []
+
 
 	for lane in range(
 		balance.lane_count
@@ -510,6 +489,7 @@ func _choose_hazard_lanes(
 				lane
 			)
 
+
 	_shuffle_int_array(
 		left_lanes,
 		rng
@@ -521,11 +501,8 @@ func _choose_hazard_lanes(
 	)
 
 
-	# Cuando tenemos dos obstáculos intentamos
-	# poner uno a cada lado.
-	#
-	# Esto evita que izquierda o derecha
-	# queden sistemáticamente más fáciles.
+	# Si tenemos dos obstáculos,
+	# intentamos poner uno a cada lado.
 
 	if (
 		hazard_count >= 2
@@ -541,8 +518,8 @@ func _choose_hazard_lanes(
 		)
 
 
-	# Para un solo obstáculo elegimos
-	# aleatoriamente entre ambos lados.
+	# Si tenemos uno,
+	# alternamos aleatoriamente izquierda/derecha.
 
 	elif hazard_count >= 1:
 		var choose_left: bool = (
@@ -568,8 +545,7 @@ func _choose_hazard_lanes(
 			)
 
 
-	# Si todavía faltan obstáculos,
-	# rellenamos usando carriles disponibles.
+	# Completamos si todavía faltan obstáculos.
 
 	if result.size() < hazard_count:
 		var remaining: Array[int] = []
@@ -600,11 +576,12 @@ func _choose_hazard_lanes(
 				lane
 			)
 
+
 	return result
 
 
 # ============================================================
-# TIPO DE OBSTÁCULO
+# CREACIÓN DEL TIPO DE OBSTÁCULO
 # ============================================================
 
 func _spawn_hazard(
@@ -616,41 +593,91 @@ func _spawn_hazard(
 	rng: RandomNumberGenerator
 ) -> void:
 
-	var chosen: PackedScene = (
-		hazard_block_scene
-	)
+	var chosen: PackedScene = hazard_block_scene
 
+	var moving_chance: float = 0.0
 	var drone_chance: float = 0.0
+	var spike_chance: float = 0.30
 
 
-	# Los drones empiezan después
-	# de la altura definida en GameBalance.
+	# ========================================================
+	# BLOQUE MÓVIL VERTICAL
+	# ========================================================
 
-	if (
-		altitude_m
-		>= balance.drone_start_height_meters
-	):
-		if altitude_m < MID_END_METERS:
-			drone_chance = 0.20
+	# Empieza a aparecer después de 60 m.
+
+	if altitude_m >= INTRO_END_METERS:
+		if altitude_m < EARLY_END_METERS:
+			moving_chance = 0.16
+
+		elif altitude_m < MID_END_METERS:
+			moving_chance = 0.22
 
 		elif altitude_m < HARD_END_METERS:
-			drone_chance = 0.30
+			moving_chance = 0.28
 
 		else:
-			drone_chance = 0.40
+			moving_chance = 0.32
+
+
+	# ========================================================
+	# DRONES HORIZONTALES
+	# ========================================================
+
+	if altitude_m >= balance.drone_start_height_meters:
+		if altitude_m < MID_END_METERS:
+			drone_chance = 0.18
+
+		elif altitude_m < HARD_END_METERS:
+			drone_chance = 0.26
+
+		else:
+			drone_chance = 0.32
+
+
+	# ========================================================
+	# PINCHOS
+	# ========================================================
+
+	if altitude_m >= HARD_END_METERS:
+		spike_chance = 0.24
+
+	elif altitude_m >= MID_END_METERS:
+		spike_chance = 0.28
+
+
+	# ========================================================
+	# ELEGIR OBSTÁCULO
+	# ========================================================
+
+	var roll: float = rng.randf()
 
 
 	if (
+		moving_block_scene != null
+		and roll < moving_chance
+	):
+		chosen = moving_block_scene
+
+	elif (
 		drone_scene != null
-		and rng.randf() < drone_chance
+		and roll
+		< moving_chance
+		+ drone_chance
 	):
 		chosen = drone_scene
 
 	elif (
 		spike_scene != null
-		and rng.randf() < 0.50
+		and roll
+		< moving_chance
+		+ drone_chance
+		+ spike_chance
 	):
 		chosen = spike_scene
+
+	else:
+		chosen = hazard_block_scene
 
 
 	if chosen == null:
@@ -668,7 +695,7 @@ func _spawn_hazard(
 
 
 	# ========================================================
-	# AJUSTE DE DRONES MÓVILES
+	# CONFIGURAR OBSTÁCULOS MÓVILES
 	# ========================================================
 
 	if instance is PatrolHazard:
@@ -676,41 +703,100 @@ func _spawn_hazard(
 			instance as PatrolHazard
 		)
 
-		var lane_distance: int = abs(
-			lane - safe_lane
-		)
 
+		# ----------------------------------------------------
+		# DRONES - MOVIMIENTO HORIZONTAL
+		# ----------------------------------------------------
 
-		# Si el dron aparece junto al carril seguro
-		# limitamos cuánto puede invadirlo.
-		#
-		# La ruta sigue siendo difícil,
-		# pero nunca injusta.
+		if (
+			patrol.movement_mode
+			== PatrolHazard.MovementMode.HORIZONTAL
+		):
 
-		if lane_distance <= 1:
-			patrol.travel_distance = minf(
-				patrol.travel_distance,
-				72.0
+			var lane_distance: int = abs(
+				lane - safe_lane
 			)
+
+
+			# Si está junto al carril seguro,
+			# reducimos cuánto puede invadirlo.
+
+			if lane_distance <= 1:
+				patrol.travel_distance = minf(
+					patrol.travel_distance,
+					72.0
+				)
+
+			else:
+				patrol.travel_distance = minf(
+					patrol.travel_distance + 20.0,
+					140.0
+				)
+
+
+			# Velocidad progresiva.
+
+			if altitude_m >= HARD_END_METERS:
+				patrol.speed += 30.0
+
+			elif altitude_m >= MID_END_METERS:
+				patrol.speed += 18.0
+
+			elif altitude_m >= EARLY_END_METERS:
+				patrol.speed += 8.0
+
+
+		# ----------------------------------------------------
+		# BLOQUES - MOVIMIENTO VERTICAL
+		# ----------------------------------------------------
 
 		else:
-			patrol.travel_distance = minf(
-				patrol.travel_distance + 20.0,
-				140.0
-			)
+
+			# 60 - 120 m
+
+			if altitude_m < EARLY_END_METERS:
+				patrol.travel_distance = minf(
+					patrol.travel_distance,
+					95.0
+				)
+
+				patrol.speed = minf(
+					patrol.speed,
+					78.0
+				)
 
 
-		# Los drones se vuelven un poco más rápidos
-		# conforme avanzamos en el mundo.
+			# 120 - 180 m
 
-		if altitude_m >= HARD_END_METERS:
-			patrol.speed += 30.0
+			elif altitude_m < MID_END_METERS:
+				patrol.travel_distance = minf(
+					patrol.travel_distance,
+					110.0
+				)
 
-		elif altitude_m >= MID_END_METERS:
-			patrol.speed += 18.0
+				patrol.speed += 8.0
 
-		elif altitude_m >= EARLY_END_METERS:
-			patrol.speed += 8.0
+
+			# 180 - 240 m
+
+			elif altitude_m < HARD_END_METERS:
+				patrol.travel_distance = minf(
+					patrol.travel_distance,
+					125.0
+				)
+
+				patrol.speed += 14.0
+
+
+			# 240 - 300 m
+
+			else:
+				patrol.travel_distance = minf(
+					patrol.travel_distance + 15.0,
+					140.0
+				)
+
+				patrol.speed += 24.0
 
 
 # ============================================================
@@ -753,9 +839,6 @@ func _spawn_air_pickups(
 
 
 	# Globo completo menos frecuente.
-	#
-	# Queremos que sea valioso,
-	# no algo que aparezca constantemente.
 
 	if (
 		global_row > 0
@@ -801,19 +884,15 @@ func _spawn_coin_pattern(
 	var reward_lane: int = safe_lane
 
 
-	# --------------------------------------------------------
-	# 0 - 60 m
-	# Monedas enseñan al jugador por dónde ir.
-	# --------------------------------------------------------
+	# 0 - 60 m:
+	# monedas enseñan la ruta.
 
 	if altitude_m < INTRO_END_METERS:
 		reward_lane = safe_lane
 
 
-	# --------------------------------------------------------
-	# 60 - 120 m
-	# Empezamos a pedir pequeños movimientos.
-	# --------------------------------------------------------
+	# 60 - 120 m:
+	# empezamos a pedir pequeños movimientos.
 
 	elif altitude_m < EARLY_END_METERS:
 		reward_lane = _pick_adjacent_lane(
@@ -822,12 +901,8 @@ func _spawn_coin_pattern(
 		)
 
 
-	# --------------------------------------------------------
-	# 120 m en adelante
-	# A veces ponemos las monedas más lejos.
-	#
-	# Más riesgo = mejor recompensa.
-	# --------------------------------------------------------
+	# 120 m en adelante:
+	# algunas monedas requieren más riesgo.
 
 	else:
 		var risk_roll: float = rng.randf()
@@ -894,9 +969,8 @@ func _spawn_scene(
 			instance as Node2D
 		)
 
-		node_2d.position = (
-			local_position
-		)
+		node_2d.position = local_position
+
 
 	return instance
 
@@ -967,6 +1041,7 @@ func _spawn_rescue_balloon() -> void:
 		)
 	)
 
+
 	var lane_shift: int = 1
 
 	if player.global_position.x > 0.0:
@@ -1013,6 +1088,7 @@ func _spawn_rescue_balloon() -> void:
 func _chunk_index_for_y(
 	y: float
 ) -> int:
+
 	return int(
 		floor(
 			(
@@ -1026,6 +1102,7 @@ func _chunk_index_for_y(
 func _nearest_row_for_y(
 	y: float
 ) -> int:
+
 	var spacing: float = (
 		balance.chunk_height
 		/ float(
@@ -1050,6 +1127,7 @@ func _nearest_row_for_y(
 func _row_center_y(
 	global_row: int
 ) -> float:
+
 	var spacing: float = (
 		balance.chunk_height
 		/ float(
@@ -1073,6 +1151,7 @@ func _row_center_y(
 func _safe_lane_for_row(
 	row: int
 ) -> int:
+
 	var center_lane: int = int(
 		balance.lane_count / 2
 	)
@@ -1080,9 +1159,11 @@ func _safe_lane_for_row(
 	if row <= 0:
 		return center_lane
 
+
 	_ensure_safe_rows(
 		row
 	)
+
 
 	return int(
 		_safe_lane_by_row.get(
@@ -1095,6 +1176,7 @@ func _safe_lane_for_row(
 func _ensure_safe_rows(
 	target_row: int
 ) -> void:
+
 	if target_row <= _max_safe_row:
 		return
 
@@ -1125,11 +1207,14 @@ func _ensure_safe_rows(
 		)
 
 
-		var lane: int = _choose_next_safe_lane(
-			row,
-			previous,
-			rng
+		var lane: int = (
+			_choose_next_safe_lane(
+				row,
+				previous,
+				rng
+			)
 		)
+
 
 		_safe_lane_by_row[row] = lane
 
@@ -1183,9 +1268,8 @@ func _choose_next_safe_lane(
 	)
 
 
-	# No dejamos que el carril seguro
-	# permanezca demasiado tiempo exactamente
-	# en el mismo lugar.
+	# No dejamos que el camino seguro
+	# permanezca demasiado tiempo igual.
 
 	if (
 		same_lane_streak >= 2
@@ -1210,11 +1294,9 @@ func _choose_next_safe_lane(
 	)
 
 
-	# Si llevamos varias filas en el mismo lado,
-	# forzamos gradualmente el regreso al centro.
-	#
-	# Esto corrige el problema de que la derecha
-	# se convierta en la autopista fácil.
+	# Si llevamos demasiado tiempo
+	# en izquierda o derecha,
+	# regresamos gradualmente al centro.
 
 	if (
 		previous_side != 0
@@ -1233,8 +1315,8 @@ func _choose_next_safe_lane(
 			return inward_lane
 
 
-	# En los extremos no permitimos
-	# quedarse atrapado varias filas.
+	# Evitamos permanecer demasiado
+	# tiempo pegados a los extremos.
 
 	if (
 		previous == 0
@@ -1256,10 +1338,7 @@ func _choose_next_safe_lane(
 				return inward_from_edge
 
 
-	# Pequeño sesgo natural hacia el centro.
-	#
-	# No siempre ocurre porque queremos
-	# rutas variadas, no predecibles.
+	# Pequeño sesgo hacia el centro.
 
 	if (
 		previous != center_lane
@@ -1275,6 +1354,7 @@ func _choose_next_safe_lane(
 			previous
 			+ center_direction
 		)
+
 
 		if toward_center in choices:
 			return toward_center
@@ -1327,6 +1407,7 @@ func _count_same_lane_streak(
 		if previous_lane != lane:
 			break
 
+
 		count += 1
 
 
@@ -1369,6 +1450,7 @@ func _count_side_streak(
 			lane
 		) != side:
 			break
+
 
 		count += 1
 
@@ -1418,6 +1500,7 @@ func _lane_x(
 		)
 	)
 
+
 	return (
 		-usable_width * 0.5
 		+ float(lane)
@@ -1426,7 +1509,7 @@ func _lane_x(
 
 
 # ============================================================
-# PICKUPS Y RUTAS DE RECOMPENSA
+# RUTAS DE RECOMPENSA
 # ============================================================
 
 func _pick_adjacent_lane(
@@ -1436,15 +1519,18 @@ func _pick_adjacent_lane(
 
 	var options: Array[int] = []
 
+
 	if lane > 0:
 		options.append(
 			lane - 1
 		)
 
+
 	if lane < balance.lane_count - 1:
 		options.append(
 			lane + 1
 		)
+
 
 	if options.is_empty():
 		return lane
@@ -1455,6 +1541,7 @@ func _pick_adjacent_lane(
 		options.size() - 1
 	)
 
+
 	return options[index]
 
 
@@ -1464,7 +1551,6 @@ func _pick_far_lane(
 ) -> int:
 
 	var far_lanes: Array[int] = []
-
 	var other_lanes: Array[int] = []
 
 
