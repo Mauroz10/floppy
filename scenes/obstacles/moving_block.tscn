@@ -1,0 +1,84 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/obstacles/patrol_hazard.gd" id="1"]
+
+[sub_resource type="RectangleShape2D" id="Rect"]
+size = Vector2(150, 52)
+
+
+[node name="MovingBlock" type="Area2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1")
+
+# 0 = horizontal
+# 1 = vertical
+movement_mode = 1
+
+# Se mueve 125 px arriba y abajo
+# desde su posición inicial.
+travel_distance = 125.0
+
+# Más lento que el dron para que
+# el jugador pueda leer el movimiento.
+speed = 78.0
+
+# Pequeña pausa en los extremos.
+pause_at_edge = 0.22
+
+# Puede comenzar subiendo o bajando.
+random_start_direction = true
+
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rect")
+
+
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	-75, -26,
+	75, -26,
+	75, 26,
+	-75, 26
+)
+color = Color(0.18, 0.31, 0.38, 1)
+
+
+[node name="Top" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	-75, -26,
+	75, -26,
+	64, -13,
+	-64, -13
+)
+color = Color(0.28, 0.63, 0.58, 1)
+
+
+[node name="WarningLeft" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	-58, -10,
+	-38, -10,
+	-26, 10,
+	-46, 10
+)
+color = Color(1.0, 0.68, 0.16, 1)
+
+
+[node name="WarningCenter" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	-10, -10,
+	10, -10,
+	22, 10,
+	2, 10
+)
+color = Color(1.0, 0.68, 0.16, 1)
+
+
+[node name="WarningRight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	38, -10,
+	58, -10,
+	70, 10,
+	50, 10
+)
+color = Color(1.0, 0.68, 0.16, 1)
