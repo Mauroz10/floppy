@@ -7,6 +7,8 @@ extends Node2D
 
 @onready var world_generator: WorldGenerator = $WorldGenerator
 
+@onready var finish_gate: Node2D = $NimboFinishGate
+
 @onready var hud: BalloonHUD = $HUD
 
 
@@ -20,6 +22,9 @@ var _pending_revive_position: Vector2
 func _ready() -> void:
 
 	camera.target = player
+
+
+	_position_finish_gate()
 
 
 	world_generator.initialize(
@@ -45,6 +50,25 @@ func _ready() -> void:
 
 	GameManager.zone_completed.connect(
 		_on_zone_completed
+	)
+
+
+# ============================================================
+# META DE JARDINES DE NIMBO
+# ============================================================
+
+func _position_finish_gate() -> void:
+
+	var finish_y: float = (
+		player.global_position.y
+		- GameManager.ZONE_1_TARGET_METERS
+		* player.balance.pixels_per_meter
+	)
+
+
+	finish_gate.global_position = Vector2(
+		0.0,
+		finish_y
 	)
 
 
