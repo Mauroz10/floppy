@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[node name="NimboFinishGate" type="Node2D"]
+z_index = -1
+
+[node name="GlowBack" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-410, -188, 410, -188, 365, 185, -365, 185)
+color = Color(0.48, 0.92, 0.76, 0.12)
+
+[node name="LeftPillar" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-390, -105, -292, -105, -292, 200, -390, 200)
+color = Color(0.18, 0.48, 0.39, 1)
+
+[node name="LeftPillarLight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-372, -84, -337, -84, -337, 178, -372, 178)
+color = Color(0.39, 0.78, 0.6, 1)
+
+[node name="RightPillar" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(292, -105, 390, -105, 390, 200, 292, 200)
+color = Color(0.18, 0.48, 0.39, 1)
+
+[node name="RightPillarLight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(337, -84, 372, -84, 372, 178, 337, 178)
+color = Color(0.39, 0.78, 0.6, 1)
+
+[node name="Arch" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-390, -188, 390, -188, 346, -92, -300, -92)
+color = Color(0.22, 0.58, 0.45, 1)
+
+[node name="ArchLight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-330, -168, 330, -168, 307, -122, -309, -122)
+color = Color(0.55, 0.9, 0.69, 1)
+
+[node name="Banner" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-278, -155, 278, -155, 248, -60, -248, -60)
+color = Color(0.08, 0.24, 0.24, 0.96)
+
+[node name="GoldLine" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-250, -69, 250, -69, 238, -55, -238, -55)
+color = Color(1, 0.78, 0.25, 1)
+
+[node name="FinishLine" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-292, 65, 292, 65, 292, 79, -292, 79)
+color = Color(1, 0.82, 0.32, 0.9)
+
+[node name="LeftLeafA" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-440, -130, -398, -170, -382, -119, -413, -93)
+color = Color(0.35, 0.76, 0.42, 1)
+
+[node name="LeftLeafB" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-457, -64, -413, -97, -399, -45, -433, -18)
+color = Color(0.47, 0.86, 0.52, 1)
+
+[node name="RightLeafA" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(440, -130, 398, -170, 382, -119, 413, -93)
+color = Color(0.35, 0.76, 0.42, 1)
+
+[node name="RightLeafB" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(457, -64, 413, -97, 399, -45, 433, -18)
+color = Color(0.47, 0.86, 0.52, 1)
+
+[node name="CloudLeft" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-500, 156, -476, 118, -435, 123, -410, 94, -364, 108, -344, 146, -370, 176, -470, 179)
+color = Color(0.9, 0.98, 0.94, 0.95)
+
+[node name="CloudRight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(500, 156, 476, 118, 435, 123, 410, 94, 364, 108, 344, 146, 370, 176, 470, 179)
+color = Color(0.9, 0.98, 0.94, 0.95)
+
+[node name="Title" type="Label" parent="."]
+offset_left = -275.0
+offset_top = -151.0
+offset_right = 275.0
+offset_bottom = -94.0
+theme_override_colors/font_color = Color(0.9, 1, 0.95, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 34
+text = "JARDINES DE NIMBO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Goal" type="Label" parent="."]
+offset_left = -180.0
+offset_top = -55.0
+offset_right = 180.0
+offset_bottom = 4.0
+theme_override_colors/font_color = Color(1, 0.84, 0.34, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.45)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 29
+text = "META  ·  300 m"
+horizontal_alignment = 1
+vertical_alignment = 1
